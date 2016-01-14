@@ -1,0 +1,24 @@
+{
+	"discord":
+	{
+		"user":
+		{
+			"email": "email",
+			"password": "password"
+		},
+		"serverName": "Server Name",
+		"authorisedRoles": ["Admin Role"],
+		"guestifyRole": ["Guest Role"],
+		"guestifyAuthorisedRoles": ["Role One", "Role Two", "Role Three"]
+	},
+	"enjin":
+	{
+		"api_url": "url",
+		"api_key": "key",
+		"mail_user":
+		{
+			"email":"email",
+			"password":"password"
+		}
+	}
+}
