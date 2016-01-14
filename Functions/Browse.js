@@ -49,16 +49,30 @@ function getMemberAssociations(response)
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
 			Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
 			{
-				var enjinUsers = dataJSON.result;
-				for (var memberAssociationIndex = 0; memberAssociationIndex < memberAssociations.length; memberAssociationIndex++)
+				if (error)
 				{
-					var memberAssociation = memberAssociations[memberAssociationIndex];
-					var discordUsername = this.bot.servers[0].members.get('id', memberAssociation.discordMemberID).username;
-					var enjinUser = enjinUsers[memberAssociation.enjinUserID];
-					var enjinUsername = enjinUser.username;
-					output.push({discordMemberID: memberAssociation.discordMemberID, discordUsername: discordUsername, enjinUserID: memberAssociation.enjinUserID, enjinUsername: enjinUsername});
+					console.log('Unexpected Enjin API request error.\n' + error);
+				}
+				else
+				{
+					if (dataJSON.result)
+					{
+						var enjinUsers = dataJSON.result;
+						for (var memberAssociationIndex = 0; memberAssociationIndex < memberAssociations.length; memberAssociationIndex++)
+						{
+							var memberAssociation = memberAssociations[memberAssociationIndex];
+							var discordUsername = this.bot.servers[0].members.get('id', memberAssociation.discordMemberID).username;
+							var enjinUser = enjinUsers[memberAssociation.enjinUserID];
+							var enjinUsername = enjinUser.username;
+							output.push({discordMemberID: memberAssociation.discordMemberID, discordUsername: discordUsername, enjinUserID: memberAssociation.enjinUserID, enjinUsername: enjinUsername});
+						};
+						response.send(JSON.stringify(output));
+					}
+					else
+					{
+						console.log('Unexpected Enjin API response.');
+					};
 				};
-				response.send(JSON.stringify(output));
 			}).bind(this));
 		};
 	}).bind(this));
