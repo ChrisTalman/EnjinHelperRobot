@@ -10,9 +10,9 @@ function Web(robotParameters)
 	function initialise()
 	{
 		var app = Express();
-		app.listen(3000, function ()
+		app.listen(robotParameters.settings.web.port, function ()
 		{
-			//console.log('Example app listening on port 3000!');
+			//console.log('Web server listening on port ' + robotParameters.settings.web.port + '!');
 		});
 		app.use(bodyParser.json());
 		app.use(Express.static('Web'));
