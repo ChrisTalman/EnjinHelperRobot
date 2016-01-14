@@ -79,11 +79,11 @@ function guestify(message)
 						};
 						if (associated)
 						{
-							this.bot.reply(message, 'Discord user already associated.');
+							this.bot.reply(message, discordUser.username + ' already associated.');
 						}
 						else if (fileError)
 						{
-							this.bot.reply(message, 'Could not guestify. Unexpected file error.');
+							this.bot.reply(message, discordUser.username + 'could not be guestified. Unexpected file error.');
 						}
 						else
 						{
@@ -98,6 +98,7 @@ function guestify(message)
 								else
 								{
 									this.bot.reply(message, discordUser.name + ' has been guestified.');
+									this.bot.sendMessage(discordUser, 'Hey! You have been given guest permissions. You should now be able to move between channels.');
 								};
 							}).bind(this));
 						};
@@ -110,7 +111,7 @@ function guestify(message)
 			}
 			else
 			{
-				this.bot.reply(message, 'Discord user does not exist.');
+				this.bot.reply(message, discordUsername + ' does not exist.');
 			};
 		};
 	}
