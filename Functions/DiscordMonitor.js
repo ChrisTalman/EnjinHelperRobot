@@ -175,6 +175,10 @@ function DiscordMonitor(robot, settings, conversationsManager)
 										var message = '**' + discordUser.username + '** ' + addedText + ' role **' + discordRole.name + '** and associated Enjin tag.';
 										//console.log(message);
 										robot.sendMessage(activityChannel, message);
+									}
+									else
+									{
+										Utilities.logError('handleRoleChange', 'Enjin API failed to add or remove tag from user.\n' + dataJSON);
 									};
 								});
 							}
