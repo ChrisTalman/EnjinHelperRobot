@@ -4,6 +4,7 @@ var EnjinRequestTemplates = require('../Objects/EnjinRequestTemplates');
 var FileSystem = require('fs');
 var Request = require('request');
 var Enroll = require('../Functions/Enroll');
+var Utilities = require('../Functions/Utilities');
 
 function DiscordMonitor(robot, settings, conversationsManager)
 {
@@ -158,7 +159,7 @@ function DiscordMonitor(robot, settings, conversationsManager)
 								enjinRequest.params.api_key = settings.enjin.api_key;
 								enjinRequest.params.user_id = enjinUserID;
 								enjinRequest.params.tag_id = enjinTagID;
-								Request.post({url: settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+								Utilities.conductEnjinRequest.call({settings:settings}, enjinRequest, true, 'handleRoleChange', function(dataJSON, error)
 								{
 									if (dataJSON.result === true)
 									{
@@ -175,7 +176,7 @@ function DiscordMonitor(robot, settings, conversationsManager)
 										//console.log(message);
 										robot.sendMessage(activityChannel, message);
 									};
-								}));
+								});
 							}
 							else
 							{
@@ -223,7 +224,15 @@ function DiscordMonitor(robot, settings, conversationsManager)
 		var memberRecord = memberRecords[discordUser.id];
 		if (!memberRecord || !memberRecord.lastVoiceChannelID || memberRecord.lastVoiceChannelID !== voiceChannel.id)
 		{
-			var message = '**' + discordUser.username + '** has joined **' + voiceChannel.name + '**.';
+			var message = '**' + discordUser.username + '** joined **' + voiceChannel.name + '**.';
+			if (memberRecord.lastVoiceChannelID)
+			{
+				var lastVoiceChannel = voiceChannel.server.channels.get('id', memberRecord.lastVoiceChannelID);
+				if (lastVoiceChannel)
+				{
+					message = '**' + discordUser.username + '** switched from **' + lastVoiceChannel.name + '** to **' + voiceChannel.name + '**.';
+				};
+			};
 			robot.sendMessage(activityChannel, message);
 		};
 		memberRecord.lastVoiceChannelID = discordUser.voiceChannel.id;
@@ -233,7 +242,7 @@ function DiscordMonitor(robot, settings, conversationsManager)
 		var memberRecord = memberRecords[discordUser.id];
 		if (!discordUser.voiceChannel)
 		{
-			var message = '**' + discordUser.username + '** has left **' + voiceChannel.name + '**.';
+			var message = '**' + discordUser.username + '** left **' + voiceChannel.name + '**.';
 			robot.sendMessage(activityChannel, message);
 			if (memberRecord)
 			{

@@ -30,43 +30,50 @@ function associateRole(message)
 			{
 				var enjinRequest = EnjinRequestTemplates.getSiteTags;
 				enjinRequest.params.api_key = this.settings.enjin.api_key;
-				Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+				Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateRole', function(dataJSON, error)
 				{
-					var enjinTagID = null;
-					for (var keyEnjinTagID in dataJSON.result)
+					if (error)
 					{
-						if (dataJSON.result[keyEnjinTagID].tagname === enjinTagName)
-						{
-							enjinTagID = keyEnjinTagID;
-							break;
-						};
-					};
-					if (enjinTagID)
-					{
-						FileSystem.readFile(global.appPath('Data/roleAssociations.json'), 'utf8', (function(error, data)
-						{
-							if (error)
-							{
-								if (error.errno === -4058)
-								{
-									writeRoles.call(this, discordRole, enjinTagID, message);
-								}
-								else
-								{
-									console.log('Unknown file error attempting to read roleAssociations.json.');
-								};
-							}
-							else
-							{
-								amendRoles.call(this, discordRole, enjinTagID, data, message);
-							};
-						}).bind(this));
+						this.bot.reply(message, 'Sorry, an unexpected ' + error.source + ' error occurred.');
 					}
 					else
 					{
-						this.bot.reply(message, enjinTagName + ' does not exist in Enjin.');
+						var enjinTagID = null;
+						for (var keyEnjinTagID in dataJSON.result)
+						{
+							if (dataJSON.result[keyEnjinTagID].tagname === enjinTagName)
+							{
+								enjinTagID = keyEnjinTagID;
+								break;
+							};
+						};
+						if (enjinTagID)
+						{
+							FileSystem.readFile(global.appPath('Data/roleAssociations.json'), 'utf8', (function(error, data)
+							{
+								if (error)
+								{
+									if (error.errno === -4058)
+									{
+										writeRoles.call(this, discordRole, enjinTagID, message);
+									}
+									else
+									{
+										console.log('Unknown file error attempting to read roleAssociations.json.');
+									};
+								}
+								else
+								{
+									amendRoles.call(this, discordRole, enjinTagID, data, message);
+								};
+							}).bind(this));
+						}
+						else
+						{
+							this.bot.reply(message, enjinTagName + ' does not exist in Enjin.');
+						};
 					};
-				}).bind(this));
+				});
 			}
 			else
 			{
@@ -135,7 +142,7 @@ function fulfilRoleAssociationForMembers(enjinTagID, discordRole)
 	var enjinRequest = EnjinRequestTemplates.getTagUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
 	enjinRequest.params.tag_id = enjinTagID;
-	Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'fulfilRoleAssociationForMembers', function(dataJSON, error)
 	{
 		var enjinTagUsers = dataJSON.result;
 		FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)
@@ -158,5 +165,5 @@ function fulfilRoleAssociationForMembers(enjinTagID, discordRole)
 				};
 			};
 		}).bind(this));
-	}).bind(this));
+	});
 };

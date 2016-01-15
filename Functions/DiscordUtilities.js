@@ -98,7 +98,7 @@ function guestify(message)
 								else
 								{
 									this.bot.reply(message, discordUser.name + ' has been guestified.');
-									this.bot.sendMessage(discordUser, 'Hey! You have been given guest permissions. You should now be able to move between channels.');
+									this.bot.sendMessage(discordUser, this.settings.discord.guestMessage);
 								};
 							}).bind(this));
 						};

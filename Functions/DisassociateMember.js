@@ -77,7 +77,7 @@ function revokeDissacoiatedRoles(discordUser, disassociatedEnjinUserID)
 	var enjinRequest = EnjinRequestTemplates.getUserTags;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
 	enjinRequest.params.user_id = disassociatedEnjinUserID;
-	Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'revokeDissacoiatedRoles', function(dataJSON, error)
 	{
 		var enjinUserTags = dataJSON.result;
 		FileSystem.readFile(global.appPath('Data/roleAssociations.json'), 'utf8', (function(error, data)
@@ -117,5 +117,5 @@ function revokeDissacoiatedRoles(discordUser, disassociatedEnjinUserID)
 				};
 			};
 		}).bind(this));
-	}).bind(this));
+	});
 };

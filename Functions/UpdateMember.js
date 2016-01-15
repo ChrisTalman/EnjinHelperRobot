@@ -65,7 +65,7 @@ function fulfilRoles(discordUser, callback, callbackArguments)
 						var enjinRequest = EnjinRequestTemplates.getUserTags;
 						enjinRequest.params.api_key = this.settings.enjin.api_key;
 						enjinRequest.params.user_id = enjinUserID;
-						Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+						Utilities.conductEnjinRequest.call(this, enjinRequest, 'fulfilRoles', function(dataJSON)
 						{
 							var discordUserRoles = this.bot.servers[0].rolesOfUser(discordUser);
 							var enjinUserTags = dataJSON.result;
@@ -118,7 +118,7 @@ function fulfilRoles(discordUser, callback, callbackArguments)
 									}).bind(this));
 								};
 							}).bind(this));
-						}).bind(this));
+						});
 					};
 				}).bind(this));
 			}

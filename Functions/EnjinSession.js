@@ -2,6 +2,7 @@ module.exports = EnjinSession;
 
 var Request = require('request');
 var EnjinRequestTemplates = require('../Objects/EnjinRequestTemplates');
+var Utilities = require('../Functions/Utilities');
 
 function EnjinSession(enjinEmail, ejinPassword, enjinAPIURL, preSessionID)
 {
@@ -29,34 +30,34 @@ function EnjinSession(enjinEmail, ejinPassword, enjinAPIURL, preSessionID)
 		var enjinRequest = EnjinRequestTemplates.userLogin;
 		enjinRequest.params.email = enjinEmail;
 		enjinRequest.params.password = ejinPassword;
-		Request.post({url: enjinAPIURL, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+		Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'createSession', function(dataJSON, error)
 		{
-			if (dataJSON.error)
+			if (error)
 			{
-				console.log('An Enjin error occurred during session login. Code: ' + dataJSON.error.code + '. Message: ' + dataJSON.error.message + '.');
+				callback.call(this, null, error);
 			}
 			else
 			{
 				enjinSessionID = dataJSON.result.session_id;
-				callback.call(this, enjinSessionID);
+				callback.call(this, enjinSessionID, null);
 			};
-		}).bind(this));
+		});
 	};
 	function isSessionValid(callback)
 	{
 		var enjinRequest = EnjinRequestTemplates.checkSession;
 		enjinRequest.params.session_id = enjinSessionID;
-		Request.post({url: enjinAPIURL, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+		Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'isSessionValid', function(dataJSON, error)
 		{
-			if (dataJSON.error)
+			if (error)
 			{
-				console.log('An Enjin error occurred during session check. Code: ' + dataJSON.error.code + '. Message: ' + dataJSON.error.message + '.');
 				createSession(callback);
 			}
 			else
 			{
-				callback.call(this, enjinSessionID);
+				enjinSessionID = dataJSON.result.session_id;
+				callback.call(this, enjinSessionID, null);
 			};
-		}).bind(this));
+		});
 	};
 };

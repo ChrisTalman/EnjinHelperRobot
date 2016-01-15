@@ -9,6 +9,7 @@ var FileSystem = require('fs');
 var Request = require('request');
 var EnjinRequestTemplates = require('../Objects/EnjinRequestTemplates');
 var AssociateMember = require('../Functions/AssociateMember');
+var Utilities = require('../Functions/Utilities');
 
 function manualEnroll(message)
 {
@@ -117,50 +118,57 @@ function handleEnjinUserIdentification(conversation, message)
 	var enjinUsername = message.content;
 	var enjinRequest = EnjinRequestTemplates.getAllUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
-	Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'handleEnjinUserIdentification', function(dataJSON, error)
 	{
-		var enjinUserID = null;
-		for (var keyEnjinUserID in dataJSON.result)
+		if (error)
 		{
-			if (dataJSON.result[keyEnjinUserID].username === enjinUsername)
-			{
-				enjinUserID = keyEnjinUserID;
-				break;
-			};
-		};
-		if (enjinUserID)
-		{
-			this.enjinMailUserSession.getID((function(mailUserSessionID)
-			{
-				var authenticationCode = this.TokenGenerator.generate();
-				this.conversationsManager.amendConversationData(message.author.id, {enjinUserID: enjinUserID, authenticationCode: authenticationCode});
-				var enjinRequest = EnjinRequestTemplates.sendMessage;
-				enjinRequest.params.session_id = mailUserSessionID;
-				enjinRequest.params.message_subject = 'Discord Authentication Code';
-				enjinRequest.params.message_body = 'This is an automated message.\n\nMessage the following code to the Enjin Helper Robot in Discord.\n\n[b]Code: ' + authenticationCode + '[/b]';
-				enjinRequest.params.recipients = [enjinUserID];
-				console.log('authenticationCode: ' + authenticationCode);
-				/*Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
-				{
-					if (dataJSON.error)
-					{
-						this.conversationsManager.endConversation(message.author.id);
-						console.log('An Enjin error occurred during message sending. Code: ' + dataJSON.error.code + '. Message: ' + dataJSON.error.message + '.');
-						this.bot.reply(message, 'Sorry, an Enjin error occurred.');
-					}
-					else
-					{*/
-						this.conversationsManager.setConversationStage(message.author.id, 'authenticationCode');
-						this.bot.reply(message, 'I have sent a code to your Enjin mail. Please message it to me here.');
-					/*};
-				}).bind(this));*/
-			}).bind(this));
+			this.conversationsManager.endConversation(message.author.id);
+			this.bot.reply(message, 'Sorry, an unexpected ' + error.source + ' error occurred. Conversation aborted.');
 		}
 		else
 		{
-			this.bot.reply(message, 'Sorry, I could not find a user by that name. Please try again.');
+			var enjinUserID = null;
+			for (var keyEnjinUserID in dataJSON.result)
+			{
+				if (dataJSON.result[keyEnjinUserID].username === enjinUsername)
+				{
+					enjinUserID = keyEnjinUserID;
+					break;
+				};
+			};
+			if (enjinUserID)
+			{
+				this.enjinMailUserSession.getID((function(mailUserSessionID)
+				{
+					var authenticationCode = this.TokenGenerator.generate();
+					this.conversationsManager.amendConversationData(message.author.id, {enjinUserID: enjinUserID, authenticationCode: authenticationCode});
+					var enjinRequest = EnjinRequestTemplates.sendMessage;
+					enjinRequest.params.session_id = mailUserSessionID;
+					enjinRequest.params.message_subject = 'Discord Authentication Code';
+					enjinRequest.params.message_body = 'This is an automated message.\n\nMessage the following code to the Enjin Helper Robot in Discord.\n\n[b]Code: ' + authenticationCode + '[/b]';
+					enjinRequest.params.recipients = [enjinUserID];
+					console.log('authenticationCode: ' + authenticationCode);
+					Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'handleEnjinUserIdentification', function(dataJSON, error)
+					{
+						if (error)
+						{
+							this.conversationsManager.endConversation(message.author.id);
+							this.bot.reply(message, 'Sorry, an unexpected ' + error.source + ' error occurred. Conversation aborted.');
+						}
+						else
+						{
+							this.conversationsManager.setConversationStage(message.author.id, 'authenticationCode');
+							this.bot.reply(message, 'I have sent a code to your Enjin mail. Please message it to me here.');
+						};
+					});
+				}).bind(this));
+			}
+			else
+			{
+				this.bot.reply(message, 'Sorry, I could not find a user by that name. Please try again.');
+			};
 		};
-	}).bind(this));
+	});
 };
 
 function handleAuthenticationCode(conversation, message)

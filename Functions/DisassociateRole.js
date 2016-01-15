@@ -68,7 +68,7 @@ function disassociateRole(message)
 	}
 	else
 	{
-		this.bot.reply(message, 'You can do! You lack authorisation.');
+		this.bot.reply(message, 'No can do! You lack authorisation.');
 	};
 };
 
@@ -77,7 +77,7 @@ function revokeDissacoiatedRole(disassociatedEnjinTagID, discordRole)
 	var enjinRequest = EnjinRequestTemplates.getTagUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
 	enjinRequest.params.tag_id = disassociatedEnjinTagID;
-	Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'revokeDissacoiatedRole', function(dataJSON, error)
 	{
 		var enjinTagUsers = dataJSON.result;
 		FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)
@@ -117,5 +117,5 @@ function revokeDissacoiatedRole(disassociatedEnjinTagID, discordRole)
 				};
 			};
 		}).bind(this));
-	}).bind(this));
+	});
 };

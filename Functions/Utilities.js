@@ -2,8 +2,12 @@ module.exports =
 {
 	getCommandArgument:getCommandArgument,
 	getCommandArguments:getCommandArguments,
-	clearAllDuplicateRolesFromMembers:clearAllDuplicateRolesFromMembers
+	clearAllDuplicateRolesFromMembers:clearAllDuplicateRolesFromMembers,
+	conductEnjinRequest:conductEnjinRequest,
+	logError:logError
 };
+
+var Request = require('request');
 
 function getCommandArgument(command)
 {
@@ -68,4 +72,50 @@ function clearAllDuplicateRolesFromMembers()
 		server.memberMap[member.id].roles = [];
 		this.bot.addMemberToRoles(member, uniqueRoles);
 	};
+};
+
+function conductEnjinRequest(enjinRequest, functionName, automaticErrorHandling, callback)
+{
+	Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+	{
+		if (error)
+		{
+			logError(functionName, 'Unexpected Enjin API request error.\n' + error);
+			if (!automaticErrorHandling)
+			{
+				callback.call(this, dataJSON, {source: 'Request'});
+			};
+		}
+		else
+		{
+			if (dataJSON.result)
+			{
+				callback.call(this, dataJSON);
+			}
+			else
+			{
+				logError(functionName, 'Unexpected Enjin API response.\n' + dataJSON);
+				if (!automaticErrorHandling)
+				{
+					callback.call(this, dataJSON, {source: 'Enjin'});
+				};
+			};
+		};
+	}).bind(this));
+};
+
+function logError(functionName, errorSummary)
+{
+	var timestamp = Date.now();
+	var date = new Date(timestamp);
+	var seconds = date.getSeconds();
+	var minutes = date.getMinutes();
+	var hours = date.getHours();
+	var error = '[' + getTwoDigits(hours) + ':' + getTwoDigits(minutes) + ':' + getTwoDigits(seconds) + '] ' + functionName + ': ' + errorSummary;
+	console.log(error);
+};
+
+function getTwoDigits(number)
+{
+	return ('0' + number).slice(-2);
 };

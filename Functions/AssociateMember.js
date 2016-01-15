@@ -27,66 +27,80 @@ function associateMember(message)
 			var discordUsername = commandArguments.string2;
 			var enjinRequest = EnjinRequestTemplates.getAllUsers;
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
-			Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+			Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateMember', function(dataJSON, error)
 			{
-				var enjinUserID = null;
-				for (var keyEnjinUserID in dataJSON.result)
+				if (error)
 				{
-					if (dataJSON.result[keyEnjinUserID].username === enjinUsername)
-					{
-						enjinUserID = keyEnjinUserID;
-						break;
-					};
-				};
-				if (enjinUserID)
-				{
-					var members = this.bot.servers[0].members;
-					var discordMember = null;
-					for (var i = 0; i < members.length; i++)
-					{
-						if (members[i].username === discordUsername)
-						{
-							discordMember = members[i];
-							break;
-						};
-					};
-					if (discordMember)
-					{
-						var enjinRequest = EnjinRequestTemplates.getUserTags;
-						enjinRequest.params.api_key = this.settings.enjin.api_key;
-						enjinRequest.params.user_id = enjinUserID;
-						Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
-						{
-							FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)
-							{
-								if (error)
-								{
-									if (error.errno === -4058)
-									{
-										writeMembers.call(this, enjinUserID, discordMember, message);
-									}
-									else
-									{
-										console.log('Unknown file error attempting to read userAssociations.json.');
-									};
-								}
-								else
-								{
-									amendMembers.call(this, enjinUserID, discordMember, data, message);
-								};
-							}).bind(this));
-						}).bind(this));
-					}
-					else
-					{
-						this.bot.reply(message, discordUsername + ' does not exist in Discord.');
-					};
+					this.bot.reply(message, 'Sorry, an unexpected ' + error.source + ' error occurred.');
 				}
 				else
 				{
-					this.bot.reply(message, enjinUsername + ' does not exist in Enjin.');
+					var enjinUserID = null;
+					for (var keyEnjinUserID in dataJSON.result)
+					{
+						if (dataJSON.result[keyEnjinUserID].username === enjinUsername)
+						{
+							enjinUserID = keyEnjinUserID;
+							break;
+						};
+					};
+					if (enjinUserID)
+					{
+						var members = this.bot.servers[0].members;
+						var discordMember = null;
+						for (var i = 0; i < members.length; i++)
+						{
+							if (members[i].username === discordUsername)
+							{
+								discordMember = members[i];
+								break;
+							};
+						};
+						if (discordMember)
+						{
+							var enjinRequest = EnjinRequestTemplates.getUserTags;
+							enjinRequest.params.api_key = this.settings.enjin.api_key;
+							enjinRequest.params.user_id = enjinUserID;
+							Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateMember', function(dataJSON, error)
+							{
+								if (error)
+								{
+									this.bot.reply(message, 'Sorry, an unexpected ' + error.source + ' error occurred.');
+								}
+								else
+								{
+									FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)
+									{
+										if (error)
+										{
+											if (error.errno === -4058)
+											{
+												writeMembers.call(this, enjinUserID, discordMember, message);
+											}
+											else
+											{
+												console.log('Unknown file error attempting to read userAssociations.json.');
+											};
+										}
+										else
+										{
+											amendMembers.call(this, enjinUserID, discordMember, data, message);
+										};
+									}).bind(this));
+								};
+							});
+						}
+						else
+						{
+							this.bot.reply(message, discordUsername + ' does not exist in Discord.');
+						};
+					}
+					else
+					{
+						this.bot.reply(message, enjinUsername + ' does not exist in Enjin.');
+					};
 				};
-			}).bind(this));
+			});
 		};
 	}
 	else

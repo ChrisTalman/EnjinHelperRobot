@@ -1,6 +1,8 @@
 /*
 
 To Do!
+* Introduce standard console.log() function with timestamp, function, and brief error description, for all requests and other functionality
+* Notification to guest could be defined in settings.json for user configuration
 * Activity log could include robot going online and offline
 * Enable users to access the webpage through a link provided by the robot after calling the !view command. To this end, the URL will need to be recorded somehow, and the webpage made available outside localhost and on the internet
 * Help could be provided in the web interface, including documentation as to all the commands
@@ -29,7 +31,6 @@ var AssociateRole = require('./Functions/AssociateRole');
 var DisassociateMember = require('./Functions/DisassociateMember');
 var DisassociateRole = require('./Functions/DisassociateRole');
 var Enroll = require('./Functions/Enroll');
-var Activity = require('./Functions/Activity');
 var TokenGenerator = require('token-generator')({salt: 'sjdkju2ejsdjajd920uejsaijdsjaijdihfjgfnkwjiueioej', timestampMap: 'abcdefghij'});
 var Web = require('./Functions/Web');
 var DiscordMonitor = require('./Functions/DiscordMonitor');

@@ -8,6 +8,7 @@ module.exports =
 
 var FileSystem = require('fs');
 var Request = require('request');
+var Utilities = require('./Utilities');
 var DiscordUtilities = require('./DiscordUtilities');
 var EnjinRequestTemplates = require('../Objects/EnjinRequestTemplates');
 
@@ -47,33 +48,19 @@ function getMemberAssociations(response)
 			var memberAssociations = JSON.parse(data);
 			enjinRequest = EnjinRequestTemplates.getAllUsers;
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
-			Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+			Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'getMemberAssociations', function(dataJSON)
 			{
-				if (error)
+				var enjinUsers = dataJSON.result;
+				for (var memberAssociationIndex = 0; memberAssociationIndex < memberAssociations.length; memberAssociationIndex++)
 				{
-					console.log('Unexpected Enjin API request error.\n' + error);
-				}
-				else
-				{
-					if (dataJSON.result)
-					{
-						var enjinUsers = dataJSON.result;
-						for (var memberAssociationIndex = 0; memberAssociationIndex < memberAssociations.length; memberAssociationIndex++)
-						{
-							var memberAssociation = memberAssociations[memberAssociationIndex];
-							var discordUsername = this.bot.servers[0].members.get('id', memberAssociation.discordMemberID).username;
-							var enjinUser = enjinUsers[memberAssociation.enjinUserID];
-							var enjinUsername = enjinUser.username;
-							output.push({discordMemberID: memberAssociation.discordMemberID, discordUsername: discordUsername, enjinUserID: memberAssociation.enjinUserID, enjinUsername: enjinUsername});
-						};
-						response.send(JSON.stringify(output));
-					}
-					else
-					{
-						console.log('Unexpected Enjin API response.');
-					};
+					var memberAssociation = memberAssociations[memberAssociationIndex];
+					var discordUsername = this.bot.servers[0].members.get('id', memberAssociation.discordMemberID).username;
+					var enjinUser = enjinUsers[memberAssociation.enjinUserID];
+					var enjinUsername = enjinUser.username;
+					output.push({discordMemberID: memberAssociation.discordMemberID, discordUsername: discordUsername, enjinUserID: memberAssociation.enjinUserID, enjinUsername: enjinUsername});
 				};
-			}).bind(this));
+				response.send(JSON.stringify(output));
+			});
 		};
 	}).bind(this));
 };
@@ -99,7 +86,7 @@ function getRoleAssociations(response)
 			var roleAssociations = JSON.parse(data);
 			enjinRequest = EnjinRequestTemplates.getSiteTags;
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
-			Request.post({url: this.settings.enjin.api_url, json: enjinRequest}, (function(error, httpResponse, dataJSON)
+			Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'getRoleAssociations', function(dataJSON, error)
 			{
 				var enjinTags = dataJSON.result;
 				for (var roleAssociationIndex = 0; roleAssociationIndex < roleAssociations.length; roleAssociationIndex++)
@@ -111,7 +98,7 @@ function getRoleAssociations(response)
 					output.push({discordRoleID: roleAssociation.discordRoleID, discordRoleName: discordRoleName, enjinTagID: roleAssociation.enjinTagID, enjinTagName: enjinTagName});
 				};
 				response.send(JSON.stringify(output));
-			}).bind(this));
+			});
 		};
 	}).bind(this));
 };

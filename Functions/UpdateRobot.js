@@ -1,9 +1,18 @@
 module.exports = updateRobot;
 
+var DiscordUtilities = require('./DiscordUtilities');
+
 function updateRobot()
 {
-	spawnUpdater();
-	process.exit();
+	if (DiscordUtilities.isMemberAuthorised.call(this, message.author))
+	{
+		spawnUpdater();
+		process.exit();
+	}
+	else
+	{
+		this.bot.reply(message, 'No can do! You lack authorisation.');
+	};
 };
 
 function spawnUpdater()
