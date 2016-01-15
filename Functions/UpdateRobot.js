@@ -22,7 +22,7 @@ function spawnUpdater()
 	const out = fs.openSync(global.appPath('Data/updateOutput.txt'), 'a');
 	const err = fs.openSync(global.appPath('Data/updateErrors.txt'), 'a');
 
-	const child = spawn('update.sh', [], {
+	const child = spawn('/bin/bash', ['test.sh'], {
 		cwd: __dirname,
 		detached: true,
 		stdio: ['ignore', out, err]
