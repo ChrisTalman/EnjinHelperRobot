@@ -9,7 +9,8 @@
 		"serverName": "Server Name",
 		"authorisedRoles": ["Admin Role"],
 		"guestifyRole": ["Guest Role"],
-		"guestifyAuthorisedRoles": ["Role One", "Role Two", "Role Three"]
+		"guestifyAuthorisedRoles": ["Role One", "Role Two", "Role Three"],
+		"guestMessage":"Hey! You have been given guest permissions. You should now be able to move between channels."
 	},
 	"enjin":
 	{
