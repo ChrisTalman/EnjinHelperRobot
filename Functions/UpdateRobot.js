@@ -2,7 +2,7 @@ module.exports = updateRobot;
 
 var DiscordUtilities = require('./DiscordUtilities');
 
-function updateRobot()
+function updateRobot(message)
 {
 	if (DiscordUtilities.isMemberAuthorised.call(this, message.author))
 	{

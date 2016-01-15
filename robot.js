@@ -142,7 +142,7 @@ function handleMessage(message)
 						Browse.getLink.call(this, message);
 						break;
 					case '!updateRobot':
-						UpdateRobot.call(this);
+						UpdateRobot.call(this, message);
 						break;
 					default:
 						this.bot.reply(message, 'Sorry, I do not know what you mean. :frowning:');
