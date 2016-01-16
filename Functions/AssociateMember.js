@@ -27,7 +27,7 @@ function associateMember(message)
 			var discordUsername = commandArguments.string2;
 			var enjinRequest = EnjinRequestTemplates.getAllUsers;
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
-			Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateMember', function(dataJSON, error)
+			Utilities.conductEnjinRequest.call(this, enjinRequest, 'associateMember', false, function(dataJSON, error)
 			{
 				if (error)
 				{
@@ -61,7 +61,7 @@ function associateMember(message)
 							var enjinRequest = EnjinRequestTemplates.getUserTags;
 							enjinRequest.params.api_key = this.settings.enjin.api_key;
 							enjinRequest.params.user_id = enjinUserID;
-							Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateMember', function(dataJSON, error)
+							Utilities.conductEnjinRequest.call(this, enjinRequest, 'associateMember', false, function(dataJSON, error)
 							{
 								if (error)
 								{

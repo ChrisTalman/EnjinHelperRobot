@@ -30,7 +30,7 @@ function associateRole(message)
 			{
 				var enjinRequest = EnjinRequestTemplates.getSiteTags;
 				enjinRequest.params.api_key = this.settings.enjin.api_key;
-				Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'associateRole', function(dataJSON, error)
+				Utilities.conductEnjinRequest.call(this, enjinRequest, 'associateRole', false, function(dataJSON, error)
 				{
 					if (error)
 					{
@@ -142,7 +142,7 @@ function fulfilRoleAssociationForMembers(enjinTagID, discordRole)
 	var enjinRequest = EnjinRequestTemplates.getTagUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
 	enjinRequest.params.tag_id = enjinTagID;
-	Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'fulfilRoleAssociationForMembers', function(dataJSON, error)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, 'fulfilRoleAssociationForMembers', true, function(dataJSON, error)
 	{
 		var enjinTagUsers = dataJSON.result;
 		FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)
@@ -158,8 +158,7 @@ function fulfilRoleAssociationForMembers(enjinTagID, discordRole)
 					{
 						if (error)
 						{
-							// Unexpected addMemberToRoles error
-							console.log('Unexpected addMemberToRoles error.\n' + error);
+							Utilities.logError('fulfilRoleAssociationForMembers', 'Unexpected addMemberToRoles error.\n' + error);
 						};
 					});
 				};

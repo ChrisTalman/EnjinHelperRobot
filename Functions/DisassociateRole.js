@@ -77,7 +77,7 @@ function revokeDissacoiatedRole(disassociatedEnjinTagID, discordRole)
 	var enjinRequest = EnjinRequestTemplates.getTagUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
 	enjinRequest.params.tag_id = disassociatedEnjinTagID;
-	Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'revokeDissacoiatedRole', function(dataJSON, error)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, 'revokeDissacoiatedRole', true, function(dataJSON, error)
 	{
 		var enjinTagUsers = dataJSON.result;
 		FileSystem.readFile(global.appPath('Data/userAssociations.json'), 'utf8', (function(error, data)

@@ -159,7 +159,7 @@ function DiscordMonitor(robot, settings, conversationsManager)
 								enjinRequest.params.api_key = settings.enjin.api_key;
 								enjinRequest.params.user_id = enjinUserID;
 								enjinRequest.params.tag_id = enjinTagID;
-								Utilities.conductEnjinRequest.call({settings:settings}, enjinRequest, true, 'handleRoleChange', function(dataJSON, error)
+								Utilities.conductEnjinRequest.call({settings:settings}, enjinRequest, 'handleRoleChange', true, function(dataJSON, error)
 								{
 									if (dataJSON.result === true)
 									{

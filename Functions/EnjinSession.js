@@ -30,7 +30,7 @@ function EnjinSession(enjinEmail, ejinPassword, enjinAPIURL, preSessionID)
 		var enjinRequest = EnjinRequestTemplates.userLogin;
 		enjinRequest.params.email = enjinEmail;
 		enjinRequest.params.password = ejinPassword;
-		Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'createSession', function(dataJSON, error)
+		Utilities.conductEnjinRequest.call(this, enjinRequest, 'createSession', false, function(dataJSON, error)
 		{
 			if (error)
 			{
@@ -47,7 +47,7 @@ function EnjinSession(enjinEmail, ejinPassword, enjinAPIURL, preSessionID)
 	{
 		var enjinRequest = EnjinRequestTemplates.checkSession;
 		enjinRequest.params.session_id = enjinSessionID;
-		Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'isSessionValid', function(dataJSON, error)
+		Utilities.conductEnjinRequest.call(this, enjinRequest, 'isSessionValid', false, function(dataJSON, error)
 		{
 			if (error)
 			{

@@ -118,7 +118,7 @@ function handleEnjinUserIdentification(conversation, message)
 	var enjinUsername = message.content;
 	var enjinRequest = EnjinRequestTemplates.getAllUsers;
 	enjinRequest.params.api_key = this.settings.enjin.api_key;
-	Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'handleEnjinUserIdentification', function(dataJSON, error)
+	Utilities.conductEnjinRequest.call(this, enjinRequest, 'handleEnjinUserIdentification', false, function(dataJSON, error)
 	{
 		if (error)
 		{
@@ -148,7 +148,7 @@ function handleEnjinUserIdentification(conversation, message)
 					enjinRequest.params.message_body = 'This is an automated message.\n\nMessage the following code to the Enjin Helper Robot in Discord.\n\n[b]Code: ' + authenticationCode + '[/b]';
 					enjinRequest.params.recipients = [enjinUserID];
 					console.log('authenticationCode: ' + authenticationCode);
-					Utilities.conductEnjinRequest.call(this, enjinRequest, false, 'handleEnjinUserIdentification', function(dataJSON, error)
+					Utilities.conductEnjinRequest.call(this, enjinRequest, 'handleEnjinUserIdentification', false, function(dataJSON, error)
 					{
 						if (error)
 						{

@@ -86,7 +86,7 @@ function getRoleAssociations(response)
 			var roleAssociations = JSON.parse(data);
 			enjinRequest = EnjinRequestTemplates.getSiteTags;
 			enjinRequest.params.api_key = this.settings.enjin.api_key;
-			Utilities.conductEnjinRequest.call(this, enjinRequest, true, 'getRoleAssociations', function(dataJSON, error)
+			Utilities.conductEnjinRequest.call(this, enjinRequest, 'getRoleAssociations', true, function(dataJSON, error)
 			{
 				var enjinTags = dataJSON.result;
 				for (var roleAssociationIndex = 0; roleAssociationIndex < roleAssociations.length; roleAssociationIndex++)
