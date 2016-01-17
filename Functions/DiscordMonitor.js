@@ -74,8 +74,15 @@ function DiscordMonitor(robot, settings, conversationsManager)
 			if (!roleRemains)
 			{
 				var discordRole = discordServer.roles.get('id', roleID);
-				console.log(discordUser.username + ' removed from ' + discordRole.name + '.');
-				handleRoleChange(discordServer, discordUser, discordRole, false);
+				if (discordRole)
+				{
+					console.log(discordUser.username + ' removed from ' + discordRole.name + '.');
+					handleRoleChange(discordServer, discordUser, discordRole, false);
+				}
+				else
+				{
+					console.log(discordUser.username + ' removed from a deleted role.');
+				};
 			};
 		};
 		for (var roleIndex = 0; roleIndex < currentRoles.length; roleIndex++)

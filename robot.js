@@ -1,6 +1,8 @@
 /*
 
 To Do!
+* RoleMention.js may need to handle message edits
+* 'Bookmark this' alert when browsing associations with authentication code
 * User leaves voice channel and user goes offline activity logs could be combined into one log entry
 * Introduce standard console.log() function with timestamp, function, and brief error description, for all requests and other functionality
 * Notification to guest could be defined in settings.json for user configuration
