@@ -1,6 +1,7 @@
 /*
 
 To Do!
+* Use NeDB for multiple server support
 * RoleMention.js may need to handle message edits
 * 'Bookmark this' alert when browsing associations with authentication code
 * User leaves voice channel and user goes offline activity logs could be combined into one log entry
@@ -20,6 +21,7 @@ To Do!
 console.log('Enjin Helper Robot starting.');
 
 global.appPath = (path => __dirname + '/' + path);
+global.robotEnabled = true;
 
 var FileSystem = require('fs');
 var Discord = require('discord.js');
@@ -79,82 +81,89 @@ function establishRobot(settings)
 
 function handleMessage(message)
 {
-	if (message.author !== this.bot.user)
+	if (global.robotEnabled)
 	{
-		if (message.channel.isPrivate)
+		if (message.author !== this.bot.user)
 		{
-			var command = message.content.split(' ')[0];
-			if (command === '!die')
+			if (message.channel.isPrivate)
 			{
-				killRobot.call(this, message);
-			}
-			else if (command === '!abort')
-			{
-				if (this.conversationsManager.userConversing(message.author.id))
+				var command = message.content.split(' ')[0];
+				if (command === '!die')
 				{
-					this.conversationsManager.endConversation(message.author.id);
-					this.bot.reply(message, 'I\'m sorry that you feel this way. :frowning:');
+					killRobot.call(this, message);
+				}
+				else if (command === '!abort')
+				{
+					if (this.conversationsManager.userConversing(message.author.id))
+					{
+						this.conversationsManager.endConversation(message.author.id);
+						this.bot.reply(message, 'I\'m sorry that you feel this way. :frowning:');
+					}
+					else
+					{
+						this.bot.reply(message, 'Sorry, I cannot abort a conversation that does not exist.');
+					};
+				}
+				else if (this.conversationsManager.userConversing(message.author.id))
+				{
+					var conversation = this.conversationsManager.getConversation(message.author.id).conversation;
+					switch(conversation.type)
+					{
+						case 'unenrolledMember':
+							Enroll.handleConversation.call(this, conversation, message);
+							break;
+					};
 				}
 				else
 				{
-					this.bot.reply(message, 'Sorry, I cannot abort a conversation that does not exist.');
-				};
-			}
-			else if (this.conversationsManager.userConversing(message.author.id))
-			{
-				var conversation = this.conversationsManager.getConversation(message.author.id).conversation;
-				switch(conversation.type)
-				{
-					case 'unenrolledMember':
-						Enroll.handleConversation.call(this, conversation, message);
-						break;
+					switch (command)
+					{
+						case 'ping':
+							this.bot.reply(message, 'Pong!');
+							break;
+						case '!help':
+							Help.get.call(this, message);
+							break;
+						case '!updateMember':
+							UpdateMember.updateMember.call(this, message);
+							break;
+						case '!associateMember':
+							AssociateMember.associateMember.call(this, message);
+							break;
+						case '!associateRole':
+							AssociateRole.associateRole.call(this, message);
+							break;
+						case '!disassociateMember':
+							DisassociateMember.disassociateMember.call(this, message);
+							break;
+						case '!disassociateRole':
+							DisassociateRole.disassociateRole.call(this, message);
+							break;
+						case '!enroll':
+							Enroll.manualEnroll.call(this, message);
+							break;
+						case '!guestify':
+							DiscordUtilities.guestify.call(this, message);
+							break;
+						case '!browse':
+							Browse.getLink.call(this, message);
+							break;
+						case '!updateRobot':
+							UpdateRobot.call(this, message);
+							break;
+						case '!enableRobot':
+							enableRobot(message);
+						case '!disableRobot':
+							disableRobot(message);
+						default:
+							this.bot.reply(message, 'Sorry, I do not know what you mean. :frowning:');
+					};
 				};
 			}
 			else
 			{
-				switch (command)
-				{
-					case 'ping':
-						this.bot.reply(message, 'Pong!');
-						break;
-					case '!help':
-						Help.get.call(this, message);
-						break;
-					case '!updateMember':
-						UpdateMember.updateMember.call(this, message);
-						break;
-					case '!associateMember':
-						AssociateMember.associateMember.call(this, message);
-						break;
-					case '!associateRole':
-						AssociateRole.associateRole.call(this, message);
-						break;
-					case '!disassociateMember':
-						DisassociateMember.disassociateMember.call(this, message);
-						break;
-					case '!disassociateRole':
-						DisassociateRole.disassociateRole.call(this, message);
-						break;
-					case '!enroll':
-						Enroll.manualEnroll.call(this, message);
-						break;
-					case '!guestify':
-						DiscordUtilities.guestify.call(this, message);
-						break;
-					case '!browse':
-						Browse.getLink.call(this, message);
-						break;
-					case '!updateRobot':
-						UpdateRobot.call(this, message);
-						break;
-					default:
-						this.bot.reply(message, 'Sorry, I do not know what you mean. :frowning:');
-				};
+				RoleMention.call(this, message);
 			};
-		}
-		else
-		{
-			RoleMention.call(this, message);
 		};
 	};
 };
@@ -167,6 +176,30 @@ function handleReady()
 	var bluecewe = members.get('username', 'Bluecewe | Xterea');
 	var satriAli = members.get('username', 'SatriAli');
 	//console.log(server.rolesOfUser(bluecewe)[0].name);
+};
+
+function enableRobot(message)
+{
+	if (DiscordUtilities.isMemberAuthorised(message.author))
+	{
+		global.robotEnabled = true;
+	}
+	else
+	{
+		this.bot.reply(message, 'No can do! You are not authorised.');
+	};
+};
+
+function disableRobot(message)
+{
+	if (DiscordUtilities.isMemberAuthorised(message.author))
+	{
+		global.robotEnabled = true;
+	}
+	else
+	{
+		this.bot.reply(message, 'No can do! You are not authorised.');
+	};
 };
 
 function killRobot(message)
